@@ -91,18 +91,8 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-info}
 
 # Production network configuration
-networks:
-  petstore-network:
-    driver: bridge
-    driver_opts:
-      com.docker.network.bridge.name: petstore_br0
-      com.docker.network.bridge.enable_icc: "true"
-      com.docker.network.bridge.enable_ip_masquerade: "true"
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.28.0.0/16
-          gateway: 172.28.0.1
+# Inherits network from base docker-compose.yml
+# Custom network config removed to avoid subnet conflicts
 
 # Production volume configuration
 volumes:
