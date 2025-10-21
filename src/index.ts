@@ -36,9 +36,10 @@ export async function buildApp(): Promise<FastifyInstance> {
     crossOriginResourcePolicy: false, // Disable CORP for API usage
     originAgentCluster: false, // Disable Origin-Agent-Cluster for compatibility
     // Keep other security headers enabled
-    strictTransportSecurity: process.env['NODE_ENV'] === 'production' && process.env['HTTPS'] === 'true'
-      ? { maxAge: 31536000, includeSubDomains: true }
-      : false, // Only enable HSTS over HTTPS
+    strictTransportSecurity:
+      process.env['NODE_ENV'] === 'production' && process.env['HTTPS'] === 'true'
+        ? { maxAge: 31536000, includeSubDomains: true }
+        : false, // Only enable HSTS over HTTPS
   });
 
   await app.register(cors, {
@@ -93,8 +94,15 @@ export async function buildApp(): Promise<FastifyInstance> {
       docExpansion: 'list',
       deepLinking: true,
     },
-    staticCSP: true,
-    transformStaticCSP: (header: string) => header,
+    // Customize CSP for HTTP/HTTPS environments
+    staticCSP:
+      process.env['NODE_ENV'] === 'production' && process.env['HTTPS'] === 'true'
+        ? true // Use default strict CSP for HTTPS production
+        : false, // Disable CSP for HTTP environments to avoid upgrade-insecure-requests
+    transformStaticCSP:
+      process.env['NODE_ENV'] === 'production' && process.env['HTTPS'] === 'true'
+        ? (header: string) => header
+        : undefined,
   });
 
   // Health check endpoint

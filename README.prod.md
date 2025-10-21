@@ -712,6 +712,26 @@ CORS_ORIGIN=https://yourdomain.com,https://app.yourdomain.com
 docker compose restart api
 ```
 
+**7. Swagger UI Loading Resources Over HTTPS in HTTP Environment**
+
+If Swagger UI (at `/docs`) tries to load resources over HTTPS when you're using HTTP:
+
+```bash
+# This happens when Content-Security-Policy includes 'upgrade-insecure-requests'
+# The API automatically disables this for HTTP environments
+
+# If you still see HTTPS upgrades:
+# 1. Ensure NODE_ENV is NOT set to 'production' with HTTPS='true'
+# 2. Restart the API container
+docker compose restart api
+
+# For HTTPS production environments, set in .env:
+HTTPS=true
+NODE_ENV=production
+
+# The API will then use strict CSP with upgrade-insecure-requests
+```
+
 ### Logging
 
 ```bash

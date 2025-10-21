@@ -12,7 +12,8 @@ import * as yaml from 'yaml';
  * DB-only fields (createdAt, updatedAt, etc.) are ignored in validation.
  */
 describe('Schema Compatibility: Prisma Models vs OpenAPI Schemas', () => {
-  let openapiSpec: any;  beforeAll(() => {
+  let openapiSpec: any;
+  beforeAll(() => {
     // Load and parse the OpenAPI specification
     const openapiPath = join(__dirname, '..', 'openapi', 'petstore.yml');
     const openapiContent = readFileSync(openapiPath, 'utf-8');
