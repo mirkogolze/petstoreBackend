@@ -95,10 +95,8 @@ services:
 # Custom network config removed to avoid subnet conflicts
 
 # Production volume configuration
+# Using Docker managed volumes (recommended for production)
+# For custom paths, set DATA_PATH environment variable and ensure proper permissions
 volumes:
   postgres_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${DATA_PATH:-./data/postgres}

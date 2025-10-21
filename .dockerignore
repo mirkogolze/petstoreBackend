@@ -55,6 +55,7 @@ dev.db
 dev.db-journal
 *.db
 *.db-journal
+data/
 # Note: prisma/migrations is needed for PostgreSQL migrations
 
 # OS
