@@ -122,6 +122,10 @@ nano .env
 ```bash
 # Application
 NODE_ENV=production
+# API_PORT controls the HOST port mapping (e.g., 13000 -> container:3000)
+# To expose API on different host port, change this value
+# Default: 3000 (access via http://localhost:3000)
+# Example: 13000 (access via http://localhost:13000)
 API_PORT=3000
 LOG_LEVEL=info
 
