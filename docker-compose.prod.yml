@@ -1,0 +1,114 @@
+# Production Docker Compose Configuration
+# Use with: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# This file adds production-specific hardening and resource limits
+
+services:
+  postgres:
+    # Production resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    
+    # Production logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+    
+    # Stricter health check
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-petstore} -d ${POSTGRES_DB:-petstore}"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    
+    # Production tuning environment
+    environment:
+      # Shared buffers (25% of memory allocation)
+      POSTGRES_SHARED_BUFFERS: "512MB"
+      # Effective cache size (75% of memory allocation)
+      POSTGRES_EFFECTIVE_CACHE_SIZE: "1536MB"
+      # Max connections
+      POSTGRES_MAX_CONNECTIONS: "100"
+      # Work memory
+      POSTGRES_WORK_MEM: "4MB"
+      # Maintenance work memory
+      POSTGRES_MAINTENANCE_WORK_MEM: "128MB"
+
+  api:
+    # Production resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    
+    # Production logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+    
+    # Stricter health check
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    
+    # Production environment variables
+    environment:
+      NODE_ENV: production
+      # Enable Node.js production optimizations
+      NODE_OPTIONS: "--max-old-space-size=384"
+      # Disable source maps in production
+      GENERATE_SOURCEMAP: "false"
+      # Production logging level
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+# Production network configuration
+networks:
+  petstore-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: petstore_br0
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
+
+# Production volume configuration
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data/postgres}

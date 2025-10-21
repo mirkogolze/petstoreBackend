@@ -1,0 +1,124 @@
+# Docker Compose file for Petstore API
+# Follows Docker Compose specification best practices
+# https://docs.docker.com/compose/
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: petstore-postgres
+    restart: unless-stopped
+    
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-petstore}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-petstore_password}
+      POSTGRES_DB: ${POSTGRES_DB:-petstore}
+      # Performance and security settings
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    
+    volumes:
+      # Named volume for persistent data storage
+      - postgres_data:/var/lib/postgresql/data
+      # Optionally mount initialization scripts
+      # - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    
+    networks:
+      - petstore-network
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-petstore} -d ${POSTGRES_DB:-petstore}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    
+    # Security: limit container capabilities
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+    
+    # Prevent container from gaining new privileges
+    security_opt:
+      - no-new-privileges:true
+
+  # Petstore API Service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Use target for multi-stage builds (production stage)
+      target: final
+      args:
+        NODE_VERSION: 22-alpine
+    
+    container_name: petstore-api
+    restart: unless-stopped
+    
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-petstore}:${POSTGRES_PASSWORD:-petstore_password}@postgres:5432/${POSTGRES_DB:-petstore}
+      PORT: ${API_PORT:-3000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-100}
+      RATE_LIMIT_WINDOW: ${RATE_LIMIT_WINDOW:-15 minutes}
+    
+    ports:
+      - "${API_PORT:-3000}:3000"
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+    
+    networks:
+      - petstore-network
+    
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Security: limit container capabilities
+    cap_drop:
+      - ALL
+    
+    # Prevent container from gaining new privileges
+    security_opt:
+      - no-new-privileges:true
+    
+    # Read-only root filesystem (except for tmp)
+    read_only: true
+    tmpfs:
+      - /tmp:size=64M,mode=1777
+    
+    # Run migrations and start application
+    command: sh -c "npx prisma migrate deploy && node dist/src/index.js"
+
+# Named volumes for data persistence
+volumes:
+  postgres_data:
+    driver: local
+    # Optional: specify driver options for backup/restore
+    # driver_opts:
+    #   type: none
+    #   device: /path/to/backup/directory
+    #   o: bind
+
+# Custom bridge network for service isolation
+networks:
+  petstore-network:
+    driver: bridge
+    # Optional: customize network configuration
+    # driver_opts:
+    #   com.docker.network.bridge.name: petstore_br0
+    # ipam:
+    #   config:
+    #     - subnet: 172.28.0.0/16

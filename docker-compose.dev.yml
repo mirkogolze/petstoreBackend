@@ -1,0 +1,95 @@
+# Docker Compose override for development
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+# Or simply: docker-compose up (automatically merges override files)
+
+services:
+  # Development overrides for PostgreSQL
+  postgres:
+    # Mount initialization scripts for development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Uncomment to add seed data
+      # - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    
+    # Expose logs for debugging
+    environment:
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+      # Enable query logging for development
+      POSTGRES_LOG_STATEMENT: "all"
+    
+    # More relaxed security for development
+    cap_drop: []
+    security_opt: []
+
+  # Development overrides for API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Target development stage if available, otherwise use final
+      target: final
+      # Enable BuildKit cache for faster rebuilds
+      cache_from:
+        - petstore-api:latest
+    
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://${POSTGRES_USER:-petstore}:${POSTGRES_PASSWORD:-petstore_password}@postgres:5432/${POSTGRES_DB:-petstore}
+      PORT: 3000
+      CORS_ORIGIN: "*"
+      RATE_LIMIT_MAX: 1000
+      RATE_LIMIT_WINDOW: "15 minutes"
+      # Enable debug logging
+      LOG_LEVEL: debug
+    
+    # Mount source code for hot-reload
+    volumes:
+      - ./src:/app/src:ro
+      - ./openapi:/app/openapi:ro
+      - ./prisma:/app/prisma:ro
+      # Node modules from image
+      - /app/node_modules
+    
+    # Override command for development with watch mode
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+    
+    # More relaxed security for development
+    cap_drop: []
+    security_opt: []
+    read_only: false
+    tmpfs: []
+    
+    # Development doesn't need strict health checks
+    healthcheck:
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Optional: Add pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: petstore-pgadmin
+    restart: unless-stopped
+    
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@petstore.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    
+    networks:
+      - petstore-network
+    
+    depends_on:
+      - postgres
+    
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  pgadmin_data:
+    driver: local

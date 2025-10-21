@@ -1,0 +1,24 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  pets  Pet[]
+}
+
+model Pet {
+  id         Int      @id @default(autoincrement())
+  name       String
+  status     String?
+  categoryId Int?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
