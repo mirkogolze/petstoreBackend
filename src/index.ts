@@ -32,6 +32,13 @@ export async function buildApp(): Promise<FastifyInstance> {
   // Register security plugins
   await app.register(helmet, {
     contentSecurityPolicy: false, // Disable CSP for API
+    crossOriginOpenerPolicy: false, // Disable COOP for HTTP environments
+    crossOriginResourcePolicy: false, // Disable CORP for API usage
+    originAgentCluster: false, // Disable Origin-Agent-Cluster for compatibility
+    // Keep other security headers enabled
+    strictTransportSecurity: process.env['NODE_ENV'] === 'production' && process.env['HTTPS'] === 'true'
+      ? { maxAge: 31536000, includeSubDomains: true }
+      : false, // Only enable HSTS over HTTPS
   });
 
   await app.register(cors, {

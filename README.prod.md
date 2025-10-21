@@ -545,12 +545,17 @@ sudo usermod -aG docker $USER
 
 - ✅ CORS configured for specific origins
 - ✅ Rate limiting enabled
-- ✅ Helmet security headers
+- ✅ Helmet security headers (adapted for HTTP/HTTPS environments)
 - ✅ Input validation via OpenAPI
 - ✅ Database credentials in environment variables
 - ✅ Read-only container filesystem
 - ✅ No root user in container
 - ✅ Security capabilities dropped
+
+**Note on Security Headers:**
+- For **HTTP environments** (development/testing): COOP, CORP, and Origin-Agent-Cluster headers are disabled to avoid browser warnings
+- For **HTTPS production**: Set `HTTPS=true` in `.env` to enable strict HSTS (HTTP Strict Transport Security)
+- Always use HTTPS with proper SSL certificates in production (see [SSL/TLS Configuration](#ssltls-configuration))
 
 ### 4. Database Security
 
@@ -670,6 +675,41 @@ sudo certbot renew
 
 # Check certificate expiry
 echo | openssl s_client -servername yourdomain.com -connect yourdomain.com:443 2>/dev/null | openssl x509 -noout -dates
+```
+
+**6. CORS and Security Header Warnings**
+
+If you see browser warnings about Cross-Origin-Opener-Policy or Origin-Agent-Cluster:
+
+```bash
+# These warnings appear when accessing API over HTTP (not HTTPS)
+# They are INFO level warnings and don't break functionality
+
+# Solution 1: Use HTTPS in production (recommended)
+# Follow the SSL/TLS Configuration section above
+
+# Solution 2: For development/testing over HTTP
+# The API is already configured to handle HTTP environments
+# Just ensure your CORS_ORIGIN is set correctly in .env
+
+# Solution 3: Access via localhost instead of domain name
+# Example: http://localhost:13000 instead of http://servername:13000
+```
+
+**Common CORS Issues:**
+
+```bash
+# Issue: CORS error when calling API from browser
+# Solution: Update CORS_ORIGIN in .env
+
+# Allow all origins (development only!)
+CORS_ORIGIN=*
+
+# Allow specific origins (production)
+CORS_ORIGIN=https://yourdomain.com,https://app.yourdomain.com
+
+# Then restart the API
+docker compose restart api
 ```
 
 ### Logging
