@@ -42,9 +42,13 @@ export async function buildApp(): Promise<FastifyInstance> {
         : false, // Only enable HSTS over HTTPS
   });
 
+  // CORS configuration for demo - allows all origins
+  // Note: credentials set to false to allow wildcard origin for demo purposes
   await app.register(cors, {
-    origin: process.env['CORS_ORIGIN'] || '*',
-    credentials: true,
+    origin: true, // Allow all origins (equivalent to reflecting request origin)
+    credentials: false, // Disable credentials to allow wildcard CORS
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
 
   await app.register(rateLimit, {
