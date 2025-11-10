@@ -20,7 +20,7 @@
     "prisma:migrate:prod": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:seed": "tsx scripts/seed.ts",
     "db:reset": "prisma migrate reset --force",
     "openapi:generate": "openapi-generator-cli generate -i openapi/petstore.yml -g typescript-fetch -o generated",
     "prepare": "husky install"

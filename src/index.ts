@@ -5,7 +5,7 @@ import rateLimit from '@fastify/rate-limit';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import openapiGlue from 'fastify-openapi-glue';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { OpenAPIServiceHandler } from './services/openapiService';
 import { errorHandler } from './utils/errorHandler';
@@ -148,8 +148,14 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   // Load OpenAPI specification
-  // In production (Docker), dist structure is dist/src/index.js, need to go up 2 levels
-  const specPath = join(__dirname, '..', '..', 'openapi', 'petstore.yml');
+  // Determine the correct path based on whether we're running from source or compiled
+  let specPath = join(__dirname, '..', '..', 'openapi', 'petstore.yml'); // Production path
+  
+  // In development (tsx watch), __dirname is src/, so we need to go up one level
+  if (!existsSync(specPath)) {
+    specPath = join(__dirname, '..', 'openapi', 'petstore.yml');
+  }
+  
   const specification = readFileSync(specPath, 'utf8');
 
   // Create service handler with all operationIds
