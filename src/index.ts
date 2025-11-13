@@ -15,7 +15,7 @@ import { prisma, disconnectPrisma } from './utils/prisma';
 /**
  * Build and configure the Fastify application
  */
-export async function buildApp(serverHost?: string, serverPort?: number): Promise<FastifyInstance> {
+export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
     logger: getLoggerConfig(),
     ajv: {
@@ -57,18 +57,8 @@ export async function buildApp(serverHost?: string, serverPort?: number): Promis
   });
 
   // Register Swagger documentation
-  // Determine the server URL for Swagger UI
-  // Priority: 1) API_URL env var, 2) passed host/port, 3) defaults
-  let serverUrl: string;
-  if (process.env['API_URL']) {
-    serverUrl = process.env['API_URL'];
-  } else {
-    const port = serverPort || parseInt(process.env['PORT'] || '3000', 10);
-    const host = serverHost || process.env['HOST'] || 'localhost';
-    // Use actual hostname instead of 0.0.0.0 for Swagger UI
-    const displayHost = host === '0.0.0.0' ? 'localhost' : host;
-    serverUrl = `http://${displayHost}:${port}`;
-  }
+  // If API_URL is explicitly set, use that; otherwise use empty string for dynamic resolution
+  const configuredApiUrl = process.env['API_URL'];
   
   await app.register(fastifySwagger, {
     openapi: {
@@ -96,12 +86,15 @@ export async function buildApp(serverHost?: string, serverPort?: number): Promis
           description: 'Everything about the Pet categories',
         },
       ],
-      servers: [
-        {
-          url: serverUrl,
-          description: serverUrl.includes('localhost') ? 'Development server' : 'Production server',
-        },
-      ],
+      // Don't set servers here - let it be dynamic based on request
+      servers: configuredApiUrl
+        ? [
+            {
+              url: configuredApiUrl,
+              description: 'Configured API server',
+            },
+          ]
+        : undefined, // Undefined servers will make Swagger use the current request host
     },
   });
 
@@ -202,7 +195,7 @@ async function start(): Promise<void> {
     const port = parseInt(process.env['PORT'] || '3000', 10);
     const host = process.env['HOST'] || '0.0.0.0';
 
-    const app = await buildApp(host, port);
+    const app = await buildApp();
 
     await app.listen({ port, host });
 
