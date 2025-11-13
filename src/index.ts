@@ -15,7 +15,7 @@ import { prisma, disconnectPrisma } from './utils/prisma';
 /**
  * Build and configure the Fastify application
  */
-export async function buildApp(): Promise<FastifyInstance> {
+export async function buildApp(serverHost?: string, serverPort?: number): Promise<FastifyInstance> {
   const app = Fastify({
     logger: getLoggerConfig(),
     ajv: {
@@ -57,9 +57,18 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   // Register Swagger documentation
-  // Use environment variable for server URL or default to localhost with the configured port
-  const port = parseInt(process.env['PORT'] || '3000', 10);
-  const serverUrl = process.env['API_URL'] || `http://localhost:${port}`;
+  // Determine the server URL for Swagger UI
+  // Priority: 1) API_URL env var, 2) passed host/port, 3) defaults
+  let serverUrl: string;
+  if (process.env['API_URL']) {
+    serverUrl = process.env['API_URL'];
+  } else {
+    const port = serverPort || parseInt(process.env['PORT'] || '3000', 10);
+    const host = serverHost || process.env['HOST'] || 'localhost';
+    // Use actual hostname instead of 0.0.0.0 for Swagger UI
+    const displayHost = host === '0.0.0.0' ? 'localhost' : host;
+    serverUrl = `http://${displayHost}:${port}`;
+  }
   
   await app.register(fastifySwagger, {
     openapi: {
@@ -190,10 +199,10 @@ export async function buildApp(): Promise<FastifyInstance> {
  */
 async function start(): Promise<void> {
   try {
-    const app = await buildApp();
-
     const port = parseInt(process.env['PORT'] || '3000', 10);
     const host = process.env['HOST'] || '0.0.0.0';
+
+    const app = await buildApp(host, port);
 
     await app.listen({ port, host });
 
