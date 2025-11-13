@@ -57,8 +57,9 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   // Register Swagger documentation
-  // Use environment variable for server URL or default to localhost
-  const serverUrl = process.env['API_URL'] || 'http://localhost:3000';
+  // Use environment variable for server URL or default to localhost with the configured port
+  const port = parseInt(process.env['PORT'] || '3000', 10);
+  const serverUrl = process.env['API_URL'] || `http://localhost:${port}`;
   
   await app.register(fastifySwagger, {
     openapi: {

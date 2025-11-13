@@ -81,7 +81,7 @@ prisma-studio:
 # Check health
 health:
 	@echo "Checking API health..."
-	@curl -f http://localhost:3000/health || echo "API is not healthy"
+	@curl -f http://localhost:13000/health || echo "API is not healthy"
 	@echo ""
 	@echo "Checking database..."
 	@docker compose exec postgres pg_isready -U petstore || echo "Database is not ready"

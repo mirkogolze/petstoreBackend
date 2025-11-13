@@ -64,13 +64,13 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       DATABASE_URL: postgresql://${POSTGRES_USER:-petstore}:${POSTGRES_PASSWORD:-petstore_password}@postgres:5432/${POSTGRES_DB:-petstore}
-      PORT: 3000
+      PORT: 13000
       CORS_ORIGIN: ${CORS_ORIGIN:-*}
       RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-100}
       RATE_LIMIT_WINDOW: ${RATE_LIMIT_WINDOW:-15 minutes}
     
     ports:
-      - "${API_PORT:-3000}:3000"
+      - "${PORT:-13000}:13000"
     
     depends_on:
       postgres:
@@ -80,7 +80,7 @@ services:
       - petstore-network
     
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:13000/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

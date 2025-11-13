@@ -28,9 +28,9 @@ This guide explains how to run the Petstore API with PostgreSQL using Docker Com
    ```
 
 4. **Access the API**:
-   - API: http://localhost:3000
-   - Swagger UI: http://localhost:3000/docs
-   - Health Check: http://localhost:3000/health
+   - API: http://localhost:13000
+   - Swagger UI: http://localhost:13000/docs
+   - Health Check: http://localhost:13000/health
 
 ### Option 2: Using Makefile (Easier)
 
@@ -96,7 +96,7 @@ POSTGRES_DB=petstore
 POSTGRES_PORT=5432
 
 # API Configuration
-API_PORT=3000
+PORT=13000
 NODE_ENV=production
 
 # CORS Configuration

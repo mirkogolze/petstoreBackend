@@ -109,11 +109,11 @@ EXPOSE 3000
 
 # Set production environment
 ENV NODE_ENV=production \
-    PORT=3000
+    PORT=13000
 
 # Health check endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
+    CMD curl -f http://localhost:13000/health || exit 1
 
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]

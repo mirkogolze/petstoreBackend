@@ -35,7 +35,7 @@ services:
     environment:
       NODE_ENV: development
       DATABASE_URL: postgresql://${POSTGRES_USER:-petstore}:${POSTGRES_PASSWORD:-petstore_password}@postgres:5432/${POSTGRES_DB:-petstore}
-      PORT: 3000
+      PORT: 13000
       CORS_ORIGIN: "*"
       RATE_LIMIT_MAX: 1000
       RATE_LIMIT_WINDOW: "15 minutes"

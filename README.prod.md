@@ -122,11 +122,11 @@ nano .env
 ```bash
 # Application
 NODE_ENV=production
-# API_PORT controls the HOST port mapping (e.g., 13000 -> container:3000)
+# PORT controls the HOST port mapping (e.g., 13000 -> container:13000)
 # To expose API on different host port, change this value
-# Default: 3000 (access via http://localhost:3000)
+# Default: 3000 (access via http://localhost:13000)
 # Example: 13000 (access via http://localhost:13000)
-API_PORT=3000
+PORT=13000
 LOG_LEVEL=info
 
 # Database - Use strong passwords!
@@ -212,7 +212,7 @@ docker compose ps
 
 ```bash
 # Check API health endpoint
-curl http://localhost:3000/health
+curl http://localhost:13000/health
 
 # Check logs
 docker compose logs -f api
@@ -268,7 +268,7 @@ limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
 
 # Upstream backend
 upstream petstore_api {
-    server localhost:3000 max_fails=3 fail_timeout=30s;
+    server localhost:13000 max_fails=3 fail_timeout=30s;
     keepalive 32;
 }
 
@@ -416,7 +416,7 @@ docker inspect petstore-api --format='{{json .State.Health}}' | jq
 # Create monitoring script
 cat > /opt/petstore-api/monitor.sh << 'EOF'
 #!/bin/bash
-HEALTH_URL="http://localhost:3000/health"
+HEALTH_URL="http://localhost:13000/health"
 STATUS=$(curl -s -o /dev/null -w "%{http_code}" $HEALTH_URL)
 
 if [ $STATUS -ne 200 ]; then
@@ -618,8 +618,8 @@ jobs:
 
 ```bash
 # Find process using port 3000
-sudo lsof -i :3000
-sudo netstat -tulpn | grep :3000
+sudo lsof -i :13000
+sudo netstat -tulpn | grep :13000
 
 # Kill process
 sudo kill -9 <PID>
@@ -821,7 +821,7 @@ docker compose logs -f
 docker compose restart api
 
 # Check health
-curl http://localhost:3000/health
+curl http://localhost:13000/health
 
 # Backup database
 ./backup.sh

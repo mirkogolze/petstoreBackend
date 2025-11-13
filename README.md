@@ -32,7 +32,7 @@ Create a `.env` file in the root directory:
 
 ```bash
 NODE_ENV=development
-PORT=3000
+PORT=13000
 DATABASE_URL="file:./dev.db"
 ```
 
@@ -55,13 +55,13 @@ npm run prisma:seed
 npm run dev
 ```
 
-The server will start on `http://localhost:3000`
+The server will start on `http://localhost:13000`
 
 ## Swagger UI Documentation
 
 Interactive API documentation is available via Swagger UI at:
 
-**`http://localhost:3000/docs`**
+**`http://localhost:13000/docs`**
 
 The Swagger UI provides:
 - Interactive API exploration
@@ -71,7 +71,7 @@ The Swagger UI provides:
 - Authentication testing (when implemented)
 
 You can also access the OpenAPI JSON specification at:
-- `http://localhost:3000/docs/json`
+- `http://localhost:13000/docs/json`
 
 ## API Endpoints
 
@@ -189,7 +189,7 @@ All errors follow a consistent format:
 
 ```bash
 NODE_ENV=production
-PORT=3000
+PORT=13000
 DATABASE_URL="postgresql://user:password@host:5432/database"
 LOG_LEVEL=info
 CORS_ORIGIN=https://yourdomain.com
