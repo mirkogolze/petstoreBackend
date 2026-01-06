@@ -82,7 +82,7 @@ describe('Schema Compatibility: Prisma Models vs OpenAPI Schemas', () => {
 
       // Prisma Pet model fields (excluding DB-only fields)
       // Note: 'category' in OpenAPI maps to 'categoryId' in DB (foreign key)
-      const prismaFields = ['id', 'name', 'status', 'category', 'categoryId'];
+      const prismaFields = ['id', 'name', 'photoUrl', 'status', 'category', 'categoryId'];
 
       openapiFields.forEach((field) => {
         if (field === 'category') {

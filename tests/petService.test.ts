@@ -29,6 +29,7 @@ describe('PetService', () => {
       const mockPet = {
         id: 1,
         name: 'Buddy',
+        photoUrl: null,
         status: 'available',
         categoryId: null,
         category: null,
@@ -47,6 +48,7 @@ describe('PetService', () => {
       expect(mockPrismaClient.pet.create).toHaveBeenCalledWith({
         data: {
           name: 'Buddy',
+          photoUrl: undefined,
           status: 'available',
           categoryId: undefined,
         },
@@ -82,6 +84,7 @@ describe('PetService', () => {
       const mockPet = {
         id: 1,
         name: 'Buddy',
+        photoUrl: null,
         status: 'available',
         categoryId: null,
         category: null,
@@ -118,6 +121,7 @@ describe('PetService', () => {
         {
           id: 1,
           name: 'Buddy',
+          photoUrl: null,
           status: 'available',
           categoryId: null,
           category: null,
@@ -243,6 +247,7 @@ describe('PetService', () => {
         where: { id: 1 },
         data: {
           name: 'Max',
+          photoUrl: undefined,
           status: 'sold',
           categoryId: 1,
         },

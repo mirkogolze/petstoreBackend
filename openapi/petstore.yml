@@ -311,6 +311,10 @@ components:
           example: Balu
         category:
           $ref: '#/components/schemas/Category'
+        photoUrl:
+          type: string
+          example: https://picsum.photos/877/110
+          description: a public url of the pet
         status:
           type: string
           description: pet status in the store

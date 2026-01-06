@@ -12,6 +12,7 @@ export class PetService {
    */
   async createPet(data: {
     name: string;
+    photoUrl?: string;
     status?: string;
     categoryId?: number | null;
   }): Promise<Pet> {
@@ -39,6 +40,7 @@ export class PetService {
       const pet = await this.prisma.pet.create({
         data: {
           name: data.name,
+          photoUrl: data.photoUrl,
           status: data.status || 'available',
           categoryId: data.categoryId,
         },
@@ -62,6 +64,7 @@ export class PetService {
   async updatePet(data: {
     id: number;
     name?: string;
+    photoUrl?: string;
     status?: string;
     categoryId?: number | null;
   }): Promise<Pet> {
@@ -99,6 +102,7 @@ export class PetService {
         where: { id: data.id },
         data: {
           name: data.name,
+          photoUrl: data.photoUrl,
           status: data.status,
           categoryId: data.categoryId,
         },

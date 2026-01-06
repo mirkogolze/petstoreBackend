@@ -94,6 +94,21 @@ npx prisma db seed
 - Use helmet, rate-limiting, CORS, and input sanitization.
 - Validate and sanitize user input; prefer parameterized queries.
 
+## Terminal Conventions
+
+> ⚠️ **Follow these rules strictly when running terminal commands.**
+
+### Shell Preference
+| OS | Preferred Shell |
+|----|-----------------|
+| Windows | **Git Bash** (not PowerShell, not cmd) |
+| WSL, Linux | bash |
+| macOS | zsh or bash |
+
+#### Before Running Commands
+1. **Check the current working directory** - Look at terminal context (`pwd`) before running commands
+2. **Don't `cd` unnecessarily** - If already in the target folder, run commands directly
+3. **Use absolute paths** when referencing files outside the current directory
 
 ## Useful commands
 

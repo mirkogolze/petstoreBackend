@@ -36,6 +36,7 @@ export class OpenAPIServiceHandler {
     return {
       id: pet.id,
       name: pet.name,
+      photoUrl: pet.photoUrl,
       status: pet.status,
       category: pet.category
         ? {
@@ -58,12 +59,14 @@ export class OpenAPIServiceHandler {
     try {
       const body = req.body as {
         name: string;
+        photoUrl?: string;
         status?: string;
         category?: { id?: number };
       };
 
       const pet = (await this.petService.createPet({
         name: body.name,
+        photoUrl: body.photoUrl,
         status: body.status,
         categoryId: body.category?.id ?? null,
       })) as PetWithCategory;
@@ -83,6 +86,7 @@ export class OpenAPIServiceHandler {
       const body = req.body as {
         id: number;
         name?: string;
+        photoUrl?: string;
         status?: string;
         category?: { id?: number };
       };
@@ -98,6 +102,7 @@ export class OpenAPIServiceHandler {
       const pet = (await this.petService.updatePet({
         id: body.id,
         name: body.name,
+        photoUrl: body.photoUrl,
         status: body.status,
         categoryId: body.category?.id ?? null,
       })) as PetWithCategory;
